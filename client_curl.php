@@ -11,7 +11,11 @@
 
 	while (TRUE) {
 		$output = curl_exec($ch);
-		echo $output;
+		$parsed = json_decode($output, true);
+		foreach ($parsed as $key => $value) {
+			echo $key, "=>", $value, " ";
+		}
+		echo "\n";
 	}
 
 	// close curl resource to free up system resources

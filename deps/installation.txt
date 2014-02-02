@@ -1,0 +1,6 @@
+1. Install pip:
+sudo python get-pip.py
+
+2. Install twisted from pip:
+sudo pip install twisted
+

@@ -4,3 +4,4 @@ sudo python get-pip.py
 2. Install twisted from pip:
 sudo pip install twisted
 
+3. Install libcurl module for php5 if needed.

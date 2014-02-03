@@ -11,6 +11,7 @@
 
 	while (TRUE) {
 		$output = curl_exec($ch);
+		echo $output, "\n";
 		$parsed = json_decode($output, true);
 		foreach ($parsed as $key => $value) {
 			echo $key, "=>", $value, " ";

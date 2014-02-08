@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import struct
 import socket
@@ -35,9 +36,9 @@ class SxGeo:
 			self.max_city    = info['max_city']
 			self.db_begin = fh.tell()
 
-			self.db  = fh.read(self.db_items * self.block_len);
-			self.regions_db = fh.read(info['region_size']);
-			self.cities_db  = fh.read(info['city_size']);
+			self.db  = fh.read(self.db_items * self.block_len)
+			self.regions_db = fh.read(info['region_size'])
+			self.cities_db  = fh.read(info['city_size'])
 
 			self.info['regions_begin'] = self.db_begin + self.db_items * self.block_len
 			self.info['cities_begin']  = self.info['regions_begin'] + info['region_size']
@@ -50,7 +51,7 @@ class SxGeo:
 	def search_idx(self, ipn, min, max):
 		while max - min > 8:
 			offset = (min + max) >> 1
-			index = offsed * 4
+			index = offset * 4
 			if ipn > self.m_idx_str[index:index+4]:
 				min = offset
 			else:
@@ -62,34 +63,38 @@ class SxGeo:
 				break
 		return min
 
-	def search_db(self, str, ipn, min, max):
+	def search_db(self, base, ipn, min, max):
 		if max - min > 1:
-			ipn = ipn[1:];
+			ipn = ipn[1:]
 			while max - min > 8:
 				offset = (min + max) >> 1
 				index = offset * self.block_len
-				if ipn > str[index : index+3]:
-					min = offset;
+				if ipn > base[index : index+3]:
+					min = offset
 				else:
-					max = offset;
-			while ipn > str[min*self.block_len:min*self.block_len + 3]:
+					max = offset
+			while ipn > base[min*self.block_len:min*self.block_len + 3]:
 				min_prev = min
 				min += 1
 				if min_prev >= max:
 					break
 			index = min * self.block_len - self.id_len
 			# self.id_len <= 4 always. See __init__().
-			return struct.unpack('>L', str[index : index + self.id_len].zfill(4))
+			return struct.unpack('>L', base[index : index + self.id_len].rjust(4, chr(0)))[0]
 		else:
 			index = min * self.block_len + 3
-			return struct.unpack('>L', bin2hex(str[index : index + 3].zfill(4)))
+			return struct.unpack('>L', base[index : index + 3].rjust(4, chr(0)))[0]
 
+	# TODO: Unused?
 	@staticmethod 
 	def bin2hex(bin_str):
-		return ''.join([hex(c)[2:].zfill(2) for c in bin_str])
+		return ''.join([hex(ord(c))[2:].zfill(2) for c in bin_str])
 
 	def get_num(self, ip):
-		ip1n = ip.split('.')[0];
+		try:
+			ip1n = int(ip.split('.')[0])
+		except ValueError:
+			return False
 		# FIXME: refine unroutable IP ranges checks.
 		if ip1n == 0 or ip1n == 10 or ip1n == 127 or ip1n >= self.b_idx_len:
 			return False
@@ -109,19 +114,19 @@ class SxGeo:
 			min = part * self.range if part > 0 else 0
 			max = self.db_items if part > self.m_idx_len else (part+1) * self.range
 			# Нужно проверить чтобы блок не выходил за пределы блока первого байта
-			if min < blocks_min: min = blocks_min
-			if max > blocks_max: max = blocks_max
+			if min < blocks['min']: min = blocks['min']
+			if max > blocks['max']: max = blocks['max']
 		else:
-			min = blocks_min
-			max = blocks_max
+			min = blocks['min']
+			max = blocks['max']
 		len = max - min
 		# Находим нужный диапазон в БД
 		return self.search_db(self.db, ipn, min, max)
 
 	def parseCity(self, seek):
 		raw = self.cities_db[seek : seek + self.max_city]
-		self.city = dict(zip(('rpos', 'country_id', 'region_id', 'city_id'), struct.unpack('>LBHH', raw)))
-		self.city['country_code']  = self.cc2iso[self.city['country_id']]
+		self.city = dict(zip(('rpos', 'country_id', 'region_id', 'city_id'), struct.unpack('>LBHH', raw[0:9])))
+		self.city['country_code']  = cc2iso[self.city['country_id']]
 		self.city['country_name']  = self.getCountryName(self.city['country_code'])
 		self.city['city'] = raw[9:].split('\0')[0]
 		return self.city
@@ -448,11 +453,11 @@ if __name__ == '__main__':
 		84.38.176.247
 		116.228.55.217
 		217.244.61.96""".split('\n')
-ln = '\n' + '-' * 44 + '\n';
+ln = '\n' + '-' * 44 + '\n'
 for ip in ips:
 	ip = ip.strip()
 	if not ip:
-		continue;
+		continue
 	print ip
 	print '\n\nПолная информация о городе:\n'
 	print sg.getCityFull(ip.strip()) # Вся информация о городе

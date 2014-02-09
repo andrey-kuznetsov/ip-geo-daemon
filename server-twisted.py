@@ -8,19 +8,18 @@ import json
 
 import sxgeo
 
-import random
-
-def randIP():
-	return '.'.join([str(random.randint(0, 255)) for _ in range(4)])
+SXGEO_DATA_FILE = 'sxgeo/SxGeo_GeoIPCity.dat'
+SXGEO_PORT = 8081
+SXGEO_METHODS = ['getCityFull', 'getCity']
 
 def makeErrorObj(message):
 	return {'Error': message}
 
 class SxGeoResource(resource.Resource):
 
-	sg = sxgeo.SxGeo('sxgeo/SxGeo_GeoIPCity.dat')
-
 	isLeaf = True
+
+	sg = sxgeo.SxGeo(SXGEO_DATA_FILE)
 
 	def render_GET(self, request):
 		request.setHeader('Content-Type', 'application/json; charset=utf-8')
@@ -31,9 +30,10 @@ class SxGeoResource(resource.Resource):
 		else:
 			command = uriParts[0]
 			if command == 'reload':
-				# TODO: RELOAD
-				pass
-			elif command in ['getCityFull', 'getCity', 'get_num']:
+				# We're in the main loop thread, thus the following assignment is safe.
+				self.sg = sxgeo.SxGeo(SXGEO_DATA_FILE)
+				result = True
+			elif command in SXGEO_METHODS:
 				ip = request.args.get('ip')
 				if ip:
 					result = getattr(self.sg, command)(ip[0]) # ip is a list, but we don't support multiple values
@@ -42,8 +42,7 @@ class SxGeoResource(resource.Resource):
 			else:
 				result = makeErrorObj('Unknown command: ' + command)
 
-		#a = {'cn' : result['country_name']}
 		return json.dumps(result, ensure_ascii = False) + '\n'
 
-reactor.listenTCP(8081, server.Site(SxGeoResource()))
+reactor.listenTCP(SXGEO_PORT, server.Site(SxGeoResource()))
 reactor.run()

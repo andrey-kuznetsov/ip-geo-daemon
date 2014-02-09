@@ -8,7 +8,7 @@ class SxGeo:
 
 	info = {}
 
-	def __init__(self, db_file = 'SxGeo.dat'):
+	def __init__(self, db_file):
 
 		with open(db_file, 'rb') as fh:
 

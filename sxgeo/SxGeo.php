@@ -213,13 +213,15 @@ class SxGeo {
 		else return false;
 	}
 	public function getCityFull($ip){
+		$t0 = gettimeofday(true);
 		$seek = $this->get_num($ip);
 		if($seek > 0) {
 			$this->parseCity($seek);
 			$this->parseRegion($this->city['rpos']);
 			return $this->city;
+		} else {
+			return false;
 		}
-		else return false;
 	}
 	public function getCountryName($cc){
 		$a = array('AU' => 'Австралия',

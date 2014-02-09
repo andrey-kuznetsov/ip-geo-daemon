@@ -3,7 +3,7 @@
 import struct
 import socket
 
-# Translated from PHP-version, menory mode only.
+# Translated from PHP-version, memory mode only.
 class SxGeo:
 
 	info = {}
@@ -73,22 +73,18 @@ class SxGeo:
 					min = offset
 				else:
 					max = offset
-			while ipn > base[min*self.block_len:min*self.block_len + 3]:
+			while ipn >= base[min*self.block_len:min*self.block_len + 3]:
 				min_prev = min
 				min += 1
 				if min_prev >= max:
 					break
+
 			index = min * self.block_len - self.id_len
 			# self.id_len <= 4 always. See __init__().
 			return struct.unpack('>L', base[index : index + self.id_len].rjust(4, chr(0)))[0]
 		else:
 			index = min * self.block_len + 3
 			return struct.unpack('>L', base[index : index + 3].rjust(4, chr(0)))[0]
-
-	# TODO: Unused?
-	@staticmethod 
-	def bin2hex(bin_str):
-		return ''.join([hex(ord(c))[2:].zfill(2) for c in bin_str])
 
 	def get_num(self, ip):
 		try:
@@ -127,7 +123,7 @@ class SxGeo:
 		raw = self.cities_db[seek : seek + self.max_city]
 		self.city = dict(zip(('rpos', 'country_id', 'region_id', 'city_id'), struct.unpack('>LBHH', raw[0:9])))
 		self.city['country_code']  = cc2iso[self.city['country_id']]
-		self.city['country_name']  = self.getCountryName(self.city['country_code'])
+		self.city['country_name']  = SxGeo.getCountryName(self.city['country_code'])
 		self.city['city'] = raw[9:].split('\0')[0]
 		return self.city
 
@@ -436,6 +432,9 @@ iso2country = {'AU' : 'Австралия',
 	'EH' : 'Западная Сахара'}
 
 if __name__ == '__main__':
+	"""
+	Test
+	"""
 	sg = SxGeo('sxgeo/SxGeo_GeoIPCity.dat')
 	ips = """221.193.237.73
 		183.63.130.218
@@ -453,15 +452,15 @@ if __name__ == '__main__':
 		84.38.176.247
 		116.228.55.217
 		217.244.61.96""".split('\n')
-ln = '\n' + '-' * 44 + '\n'
-for ip in ips:
-	ip = ip.strip()
-	if not ip:
-		continue
-	print ip
-	print '\n\nПолная информация о городе:\n'
-	print sg.getCityFull(ip.strip()) # Вся информация о городе
-	print "\n\nКраткая информация о городе:\n"
-	print sg.get(ip.strip()) # Краткая информация о городе
-	print ln + '\n'
+	ln = '\n' + '-' * 44 + '\n'
+	for ip in ips:
+		ip = ip.strip()
+		if not ip:
+			continue
+		print ip
+		print '\n\nПолная информация о городе:\n'
+		print sg.getCityFull(ip.strip()) # Вся информация о городе
+		print "\n\nКраткая информация о городе:\n"
+		print sg.get(ip.strip()) # Краткая информация о городе
+		print ln + '\n'
 	

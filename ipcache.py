@@ -10,8 +10,7 @@ MYSQL_PASSWORD = ''
 MYSQL_DB = 'test'
 
 NETWORK_FIELDS = ['beginip', 'endip', 'cityid', 'regionid', 'country']
-NetworkRow = namedtuple('NetworkRow', NETWORK_FIELDS[1:] 
-	+ ['avgtime']) # crutch!
+NetworkRow = namedtuple('NetworkRow', NETWORK_FIELDS[1:])
 
 class IPCache:
 
@@ -39,8 +38,7 @@ class IPCache:
 				break
 			
 			beginip = row[0]
-			self.cache[beginip] = NetworkRow._make(row[1:]
-				+ (0,)) # crutch!
+			self.cache[beginip] = NetworkRow._make(row[1:])
 
 		self.cache_keys = self.cache.keys()
 

@@ -11,7 +11,7 @@ include("SxGeo.php");
 //     SXGEO_FILE   (работа с файлом базы, режим по умолчанию); 
 //     SXGEO_BATCH (пакетная обработка, увеличивает скорость при обработке множества IP за раз)
 //     SXGEO_MEMORY (кэширование БД в памяти, еще увеличивает скорость пакетной обработки, но требует больше памяти)
-$SxGeo = new SxGeo('SxGeo_GeoIPCity.dat');
+$SxGeo = new SxGeo('SxGeo_GeoIPCity.dat', SXGEO_MEMORY);
 //$SxGeo = new SxGeo('SxGeo.dat', SXGEO_BATCH | SXGEO_MEMORY); // Самый производительный режим
 // Определяем город
 $ips = explode("\n", '221.193.237.73

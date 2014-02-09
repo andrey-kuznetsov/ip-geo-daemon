@@ -1,40 +1,49 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from twisted.web import server, resource
 from twisted.internet import reactor
 
-from datetime import datetime
-import time
-
-import ipcache
 import json
 
-import random
+import sxgeo
 
-ipcache = ipcache.IPCache()
+import random
 
 def randIP():
 	return '.'.join([str(random.randint(0, 255)) for _ in range(4)])
 
-class HelloResource(resource.Resource):
+def makeErrorObj(message):
+	return {'Error': message}
+
+class SxGeoResource(resource.Resource):
+
+	sg = sxgeo.SxGeo('sxgeo/SxGeo_GeoIPCity.dat')
+
 	isLeaf = True
-	numberRequests = 0
-	elapsed = 0.0
-	
+
 	def render_GET(self, request):
-		self.numberRequests += 1
-		request.setHeader('Content-Type', 'application/json')
-		t0 = time.clock()
-		searchRes = ipcache.search(randIP())
-		self.elapsed += time.clock() - t0
-		avgtime = self.elapsed / self.numberRequests
-		avgspeed = 0
-		if avgtime:
-			avgspeed = 1.0 / avgtime
-		if not searchRes:
-			searchRes = {'Error' : 'No IP range found', 'avgspeed' : avgspeed }
+		request.setHeader('Content-Type', 'application/json; charset=utf-8')
+
+		uriParts = [p for p in request.uri.split('?')[0].split('/') if p]
+		if not uriParts or len(uriParts) > 1:
+			result = makeErrorObj('Malformed URI')
 		else:
-			searchRes = searchRes + (avgspeed, );
+			command = uriParts[0]
+			if command == 'reload':
+				# TODO: RELOAD
+				pass
+			elif command in ['getCityFull', 'getCity', 'get_num']:
+				ip = request.args.get('ip')
+				if ip:
+					result = getattr(self.sg, command)(ip[0]) # ip is a list, but we don't support multiple values
+				else:
+					result = makeErrorObj('No "ip" request argument provided')
+			else:
+				result = makeErrorObj('Unknown command: ' + command)
 
-		return json.dumps(searchRes) + '\n'
+		#a = {'cn' : result['country_name']}
+		return json.dumps(result, ensure_ascii = False) + '\n'
 
-reactor.listenTCP(8080, server.Site(HelloResource()))
+reactor.listenTCP(8081, server.Site(SxGeoResource()))
 reactor.run()

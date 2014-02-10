@@ -1,0 +1,4 @@
+{
+    "port" : "8081",
+    "data_file" : "sxgeo/SxGeo_GeoIPCity.dat"
+}

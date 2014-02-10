@@ -5,11 +5,20 @@ from twisted.web import server, resource
 from twisted.internet import reactor
 
 import json
+import sys
 
 import sxgeo
 
-SXGEO_DATA_FILE = 'sxgeo/SxGeo_GeoIPCity.dat'
-SXGEO_PORT = 8081
+def loadConfigFromJsonFile(fileName):
+	try:
+		with open(fileName, 'r') as f:
+			return json.load(f)
+	except IOError:
+		print >> sys.stderr, 'Unable to open configuration file '  + fileName
+		sys.exit(1)
+		
+CONFIG = loadConfigFromJsonFile('server-config.json')
+
 SXGEO_METHODS = ['getCityFull', 'getCity']
 
 def makeErrorObj(message):
@@ -19,7 +28,7 @@ class SxGeoResource(resource.Resource):
 
 	isLeaf = True
 
-	sg = sxgeo.SxGeo(SXGEO_DATA_FILE)
+	sg = sxgeo.SxGeo(CONFIG['data_file'])
 
 	def render_GET(self, request):
 		request.setHeader('Content-Type', 'application/json; charset=utf-8')
@@ -31,7 +40,7 @@ class SxGeoResource(resource.Resource):
 			command = uriParts[0]
 			if command == 'reload':
 				# We're in the main loop thread, thus the following assignment is safe.
-				self.sg = sxgeo.SxGeo(SXGEO_DATA_FILE)
+				self.sg = sxgeo.SxGeo(CONFIG['data_file'])
 				result = True
 			elif command in SXGEO_METHODS:
 				ip = request.args.get('ip')
@@ -44,5 +53,6 @@ class SxGeoResource(resource.Resource):
 
 		return json.dumps(result, ensure_ascii = False) + '\n'
 
-reactor.listenTCP(SXGEO_PORT, server.Site(SxGeoResource()))
+
+reactor.listenTCP(int(CONFIG['port']), server.Site(SxGeoResource()))
 reactor.run()

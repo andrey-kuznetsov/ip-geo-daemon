@@ -54,5 +54,5 @@ class SxGeoResource(resource.Resource):
 		return json.dumps(result, ensure_ascii = False) + '\n'
 
 
-reactor.listenTCP(int(CONFIG['port']), server.Site(SxGeoResource()))
+reactor.listenTCP(int(CONFIG['port']), server.Site(SxGeoResource()), interface = CONFIG['host'])
 reactor.run()

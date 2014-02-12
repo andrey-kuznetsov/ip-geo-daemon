@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 from twisted.web import server, resource
@@ -6,10 +5,11 @@ from twisted.internet import reactor
 
 import json
 import sys
+import os
 
 import sxgeo
 
-def loadConfigFromJsonFile(fileName):
+def loadConfigFromJsonFile(fileName = 'server-config.json'):
 	try:
 		with open(fileName, 'r') as f:
 			return json.load(f)
@@ -17,7 +17,8 @@ def loadConfigFromJsonFile(fileName):
 		print >> sys.stderr, 'Unable to open configuration file '  + fileName
 		sys.exit(1)
 		
-CONFIG = loadConfigFromJsonFile('server-config.json')
+# Not using command line arguments, since they can't be passed through twistd.
+CONFIG = loadConfigFromJsonFile(os.environ['SXGEO_CONFIG'])
 
 SXGEO_METHODS = ['getCityFull', 'getCity']
 

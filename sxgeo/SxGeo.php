@@ -154,7 +154,7 @@ class SxGeo {
 		$len = $max - $min;
 		// Находим нужный диапазон в БД
 		if ($this->memory_mode) {
-			return $this->search_db($this->db, $ipn, $min, $max);
+			return $this->search_db($this->db, $ipn, $min, $max-1);
 		}
 		else {
 			fseek($this->fh, $this->db_begin + $min * $this->block_len);

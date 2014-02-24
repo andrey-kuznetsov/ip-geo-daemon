@@ -117,7 +117,7 @@ class SxGeo:
 			max = blocks['max']
 		len = max - min
 		# Находим нужный диапазон в БД
-		return self.search_db(self.db, ipn, min, max)
+		return self.search_db(self.db, ipn, min, max - 1)
 
 	def parseCity(self, seek):
 		raw = self.cities_db[seek : seek + self.max_city]

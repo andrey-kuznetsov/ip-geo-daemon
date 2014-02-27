@@ -1,5 +1,6 @@
 {
     "host" : "",
     "port" : "8081",
+    "implementation" : "sxgeo",
     "data_file" : "sxgeo/SxGeo_GeoIPCity.dat"
 }

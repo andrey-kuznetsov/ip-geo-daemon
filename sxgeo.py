@@ -5,6 +5,8 @@ import socket
 
 import countryMap
 
+import time
+
 # Translated from PHP-version, memory mode only.
 class SxGeo:
 
@@ -211,15 +213,8 @@ if __name__ == '__main__':
 		84.38.176.247
 		116.228.55.217
 		217.244.61.96""".split('\n')
-	ln = '\n' + '-' * 44 + '\n'
+	ips = [ip.strip() for ip in ips]
+	t0 = time.time()
 	for ip in ips:
-		ip = ip.strip()
-		if not ip:
-			continue
-		print ip
-		print '\n\nПолная информация о городе:\n'
-		print sg.getCityFull(ip.strip()) # Вся информация о городе
-		print "\n\nКраткая информация о городе:\n"
-		print sg.get(ip.strip()) # Краткая информация о городе
-		print ln + '\n'
-	
+		print sg.getCityFull(ip)
+	print "Elapsed: %f" % (time.time() - t0)

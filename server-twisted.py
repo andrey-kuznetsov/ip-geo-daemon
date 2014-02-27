@@ -8,6 +8,7 @@ import json
 import sys
 
 import sxgeo
+import ipcache
 
 def loadConfigFromJsonFile(fileName):
 	try:
@@ -19,17 +20,19 @@ def loadConfigFromJsonFile(fileName):
 		
 CONFIG = loadConfigFromJsonFile(sys.argv[1] if len(sys.argv) > 1 else 'server-config.json')
 
-SXGEO_METHODS = ['getCityFull', 'getCity']
+ALLOWED_METHODS = ['getCityFull', 'getCity']
 
 def makeErrorObj(message):
 	return {'Error': message}
 
-class SxGeoResource(resource.Resource):
-
+class ResourceBase(resource.Resource):
+	
 	isLeaf = True
-
-	sg = sxgeo.SxGeo(CONFIG['data_file'])
-
+	
+	def __init__(self):
+		resource.Resource.__init__(self)
+		self.recreateIPFinder()
+	
 	def render_GET(self, request):
 		request.setHeader('Content-Type', 'application/json; charset=utf-8')
 
@@ -40,19 +43,36 @@ class SxGeoResource(resource.Resource):
 			command = uriParts[0]
 			if command == 'reload':
 				# We're in the main loop thread, thus the following assignment is safe.
-				self.sg = sxgeo.SxGeo(CONFIG['data_file'])
+				self.recreateIPFinder()
 				result = True
-			elif command in SXGEO_METHODS:
+			elif command in ALLOWED_METHODS:
 				ip = request.args.get('ip')
 				if ip:
-					result = getattr(self.sg, command)(ip[0]) # ip is a list, but we don't support multiple values
+					result = getattr(self.ipFinder, command)(ip[0]) # ip is a list, but we don't support multiple values
 				else:
 					result = makeErrorObj('No "ip" request argument provided')
 			else:
 				result = makeErrorObj('Unknown command: ' + command)
 
 		return json.dumps(result, ensure_ascii = False) + '\n'
+	
+class SxGeoResource(ResourceBase):
 
+	def recreateIPFinder(self):
+		self.ipFinder = sxgeo.SxGeo(CONFIG['data_file'])
+		
+class IPCacheResource(ResourceBase):
+	
+	def recreateIPFinder(self):
+		self.ipFinder = ipcache.IPCache(CONFIG['mysql_host'], CONFIG['mysql_user'], CONFIG['mysql_password'], CONFIG['mysql_db'], )
 
-reactor.listenTCP(int(CONFIG['port']), server.Site(SxGeoResource()), interface = CONFIG['host'])
+impl = CONFIG['implementation']
+if impl == 'sxgeo':
+	resource = SxGeoResource()
+elif impl == 'ipcache':
+	resource = IPCacheResource()
+else:
+	sys.exit("Unknown implementation: %s" % impl )
+	
+reactor.listenTCP(int(CONFIG['port']), server.Site(resource), interface = CONFIG['host'])
 reactor.run()

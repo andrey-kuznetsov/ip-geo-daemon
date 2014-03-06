@@ -165,10 +165,6 @@ class SxGeo:
 		else:
 			return False
 
-	@staticmethod
-	def getCountryName(cc):
-		return iso2country[cc] if iso2country.has_key(cc) else ''
-
 cc2iso = [
 	'', 'AP', 'EU', 'AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AN', 'AO', 'AQ',
 	'AR', 'AS', 'AT', 'AU', 'AW', 'AZ', 'BA', 'BB', 'BD', 'BE', 'BF', 'BG', 'BH',

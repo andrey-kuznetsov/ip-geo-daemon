@@ -1,6 +1,9 @@
 # -*- coding: UTF-8 -*-
 def getCountryName(countryCode):
-	result = iso2country[countryCode]
+	try:
+		result = iso2country[countryCode]
+	except KeyError:
+		result = ''
 	return result if result else ''
 
 iso2country = {'AU' : 'Австралия',

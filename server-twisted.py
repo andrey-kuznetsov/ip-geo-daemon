@@ -64,7 +64,7 @@ class SxGeoResource(ResourceBase):
 class IPCacheResource(ResourceBase):
 	
 	def recreateIPFinder(self):
-		self.ipFinder = ipcache.IPCache(CONFIG['mysql_host'], CONFIG['mysql_user'], CONFIG['mysql_password'], CONFIG['mysql_db'], )
+		self.ipFinder = ipcache.IPCache(CONFIG['mysql_host'], CONFIG['mysql_unix_socket'], CONFIG['mysql_user'], CONFIG['mysql_password'], CONFIG['mysql_db'], )
 
 impl = CONFIG['implementation']
 if impl == 'sxgeo':

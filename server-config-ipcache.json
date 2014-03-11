@@ -3,6 +3,7 @@
     "port" : "8081",
     "implementation" : "ipcache",
     "mysql_host" : "localhost",
+    "mysql_unix_socket" : "/var/run/mysql/mysql.sock",
     "mysql_user" : "",
     "mysql_password" : "",
     "mysql_db" : "test"

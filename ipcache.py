@@ -31,10 +31,11 @@ class IPCache:
 	cities = {}
 	countries = {}
 	
-	def __init__(self, mysqlHost, mysqlUser, mysqlPassword, mysqlDb):
+	def __init__(self, mysqlHost, mysqlUnixSocket, mysqlUser, mysqlPassword, mysqlDb):
 		
 		self.db = MySQLdb.connect(
 			host = mysqlHost,
+			unix_socket = mysqlUnixSocket,
 			user = mysqlUser,
 			passwd = mysqlPassword,
 			db = mysqlDb)
@@ -62,6 +63,9 @@ class IPCache:
 				row = self.ranges[self.rangeKeys[i-1]]
 				if numIP <= row.endip:
 					return row
+				else:
+					# TODO: If there were nested ranges, we should loop over enlarging ranges while possible here.
+					pass
 		
 	def _getRegionById(self, regionId):
 		result = { 'region_name' : '', 'parent_region_id' : '', 'parent_region_name' : '' }

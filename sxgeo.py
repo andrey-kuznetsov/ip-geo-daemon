@@ -185,7 +185,7 @@ cc2iso = [
 	'TF', 'TG', 'TH', 'TJ', 'TK', 'TM', 'TN', 'TO', 'TL', 'TR', 'TT', 'TV', 'TW',
 	'TZ', 'UA', 'UG', 'UM', 'US', 'UY', 'UZ', 'VA', 'VC', 'VE', 'VG', 'VI', 'VN',
 	'VU', 'WF', 'WS', 'YE', 'YT', 'RS', 'ZA', 'ZM', 'ME', 'ZW', 'A1', 'A2', 'O1',
-	'AX', 'GG', 'IM', 'JE', 'BL', 'MF'
+	'AX', 'GG', 'IM', 'JE', 'BL', 'MF', 'CS'
 	]
 
 if __name__ == '__main__':

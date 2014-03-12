@@ -7,9 +7,6 @@ from twisted.internet import reactor
 import json
 import sys
 
-import sxgeo
-import ipcache
-
 def loadConfigFromJsonFile(fileName):
 	try:
 		with open(fileName, 'r') as f:
@@ -68,8 +65,10 @@ class IPCacheResource(ResourceBase):
 
 impl = CONFIG['implementation']
 if impl == 'sxgeo':
+	import sxgeo
 	resource = SxGeoResource()
 elif impl == 'ipcache':
+	import ipcache
 	resource = IPCacheResource()
 else:
 	sys.exit("Unknown implementation: %s" % impl )
